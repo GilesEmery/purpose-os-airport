@@ -1,684 +1,755 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Plane,
-  Radar,
-  Building2,
-  HandCoins,
-  Users,
-  Search,
-  Info,
-  ZoomIn,
-  ZoomOut,
-  RotateCcw,
-  ChevronRight,
-  Map,
-  Sparkles,
-  TowerControl,
-  X,
-} from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PurposeOS Airport Map</title>
+  <style>
+    :root {
+      --bg: #eef3f7;
+      --panel: #ffffff;
+      --panel-soft: #f7fafc;
+      --line: #cfd8e3;
+      --line-dark: #95a5b6;
+      --text: #1d2b39;
+      --muted: #66788a;
+      --navy: #103a63;
+      --blue: #2f7dd3;
+      --blue-soft: #dcecff;
+      --teal: #138c9c;
+      --teal-soft: #d9f3f6;
+      --green: #5e9d61;
+      --green-soft: #dff0df;
+      --gold: #c79133;
+      --gold-soft: #f6ead0;
+      --rose: #d37d95;
+      --rose-soft: #f8dce5;
+      --purple: #8d6ec6;
+      --purple-soft: #eadff9;
+      --sand: #eadaba;
+      --apron: #ccd5de;
+      --apron-dark: #aeb9c5;
+      --shadow: 0 18px 50px rgba(20, 42, 63, 0.10);
+      --radius: 22px;
+    }
 
-const palette = {
-  bg: "#eef2f6",
-  ocean: "#dfe8f0",
-  land: "#f6f8fb",
-  tarmac: "#cfd6de",
-  tarmacDark: "#aeb8c3",
-  line: "#7f8c99",
-  building: "#f7dadf",
-  building2: "#d6e6f7",
-  building3: "#d9ecd7",
-  sand: "#ead8ae",
-  gate: "#6aa4ff",
-  blue: "#3d76d1",
-  teal: "#1d9bb7",
-  green: "#69a75e",
-  coral: "#dc7f8d",
-  gold: "#d7a550",
-  navy: "#23405d",
-  ink: "#1f2f3f",
-  white: "#ffffff",
-};
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #f5f8fb 0%, #e7eef5 100%);
+      color: var(--text);
+    }
 
-const airport = {
-  airport: {
-    id: "airport",
-    title: "PurposeOS Airport",
-    type: "Airport",
-    icon: Plane,
-    subtitle: "A living ecosystem built like a real international terminal",
-    description:
-      "PurposeOS is the full airport, a coordinated place where people arrive, get oriented, connect to pathways, board into aligned opportunities, and move toward meaningful impact. Each terminal serves a different passenger type, each concourse organizes a different lane of purpose, and the tower aligns movement intelligence across the whole system.",
-    details: [
-      "Terminal 1 develops individuals",
-      "Terminal 2 equips organizations",
-      "Terminal 3 mobilizes philanthropy and capital",
-      "The Control Tower coordinates the entire ecosystem",
-    ],
-  },
-  tower: {
-    id: "tower",
-    title: "Control Tower",
-    type: "Control Tower",
-    icon: TowerControl,
-    subtitle: "CRM, AI, ecosystem intelligence, routing, and measurement",
-    description:
-      "The tower is the nervous system of the airport. It tracks needs, relationships, initiatives, resource flow, leader development, and opportunity matching. It sees what is forming, what is ready for takeoff, what gates are active, and where capital or support needs to be directed.",
-    functions: [
-      "CRM and relationship intelligence",
-      "Opportunity matching",
-      "Ecosystem dashboards",
-      "AI-guided navigation",
-      "Funding and initiative visibility",
-      "Movement health monitoring",
-    ],
-  },
-  terminals: [
-    {
-      id: "t1",
-      title: "Terminal 1, Individual Pathways",
-      short: "Individuals, emerging leaders, participants, and everyday disciples",
-      type: "Terminal",
-      icon: Users,
-      color: palette.blue,
-      description:
-        "Terminal 1 is where people enter the airport personally. They discover identity, purpose, belonging, formation, and readiness for mission. This terminal helps people move from uncertainty to clarity, from isolation to connection, and from passive interest to active engagement.",
-      passengers: ["Individuals", "Young adults", "Leaders in development", "Volunteers", "Career pivots", "Disciple makers"],
-      marketplace: ["Kaleo", "Life Mapping U", "Assessments", "Coaching", "PurposeOS pathways", "Workshops"],
-      concourses: [
-        {
-          id: "t1-c1",
-          title: "Concourse A, Restoration",
-          type: "Concourse",
-          description: "Pathways that help people move from survival and instability toward healing, readiness, and renewed direction.",
-          gates: ["Recovery", "Trauma Care", "Reentry", "Financial Stability"],
-        },
-        {
-          id: "t1-c2",
-          title: "Concourse B, Belonging",
-          type: "Concourse",
-          description: "Relational lanes that move people from isolation into community, trust, support, and shared life.",
-          gates: ["Mentoring", "Church Connection", "Community Integration", "Relational Support"],
-        },
-        {
-          id: "t1-c3",
-          title: "Concourse C, Personal Transformation",
-          type: "Concourse",
-          description: "Formation lanes that help people discover identity, deepen with Christ, and clarify calling and vocation.",
-          gates: ["Disciple Making", "Identity", "Calling", "Spiritual Formation", "Leadership Growth"],
-        },
-        {
-          id: "t1-c4",
-          title: "Concourse D, Enterprising",
-          type: "Concourse",
-          description: "Vocational and marketplace lanes where purpose starts taking practical form through work, initiative, and contribution.",
-          gates: ["Entrepreneurship", "Workforce Pathways", "Marketplace Calling", "Social Enterprise"],
-        },
-        {
-          id: "t1-c5",
-          title: "Concourse E, Missional",
-          type: "Concourse",
-          description: "Multiplication lanes where leaders step into serving, sending, and community-level impact.",
-          gates: ["Mission", "Community Impact", "Justice", "Church Planting", "Global Engagement"],
-        },
-      ],
-    },
-    {
-      id: "t2",
-      title: "Terminal 2, Organizational Pathways",
-      short: "Churches, nonprofits, ministries, schools, and collaborative ventures",
-      type: "Terminal",
-      icon: Building2,
-      color: palette.teal,
-      description:
-        "Terminal 2 is where organizations enter the airport. They discover aligned leaders, practical tools, strategic partnerships, training experiences, and the infrastructure needed to launch and strengthen initiatives that serve the common good.",
-      passengers: ["Churches", "Nonprofits", "Schools", "Ministries", "Founders", "Executive teams"],
-      marketplace: ["Leadership training", "Team development", "Board support", "Strategic planning", "Hub pathways", "Partner ecosystems"],
-      concourses: [
-        {
-          id: "t2-c1",
-          title: "Concourse F, Restoration Organizations",
-          type: "Concourse",
-          description: "Organizations focused on healing, stability, intervention, and rebuilding lives.",
-          gates: ["Recovery Centers", "Housing Support", "Trauma Services", "Reentry Initiatives"],
-        },
-        {
-          id: "t2-c2",
-          title: "Concourse G, Belonging and Community",
-          type: "Concourse",
-          description: "Organizations building relational ecosystems, neighborhoods, mentoring networks, and communal trust.",
-          gates: ["Community Hubs", "Mentoring Networks", "Church Networks", "Family Support"],
-        },
-        {
-          id: "t2-c3",
-          title: "Concourse H, Formation and Development",
-          type: "Concourse",
-          description: "Organizations equipping people in leadership, discipleship, identity, and purpose formation.",
-          gates: ["Leadership Cohorts", "Disciple Making", "Formation Programs", "Purpose Discovery"],
-        },
-        {
-          id: "t2-c4",
-          title: "Concourse I, Enterprise and Innovation",
-          type: "Concourse",
-          description: "Organizations turning vision into sustainable models, ventures, and vocational ecosystems.",
-          gates: ["Social Enterprise", "Entrepreneur Support", "Workforce Innovation", "Business Training"],
-        },
-        {
-          id: "t2-c5",
-          title: "Concourse J, Mission and Multiplication",
-          type: "Concourse",
-          description: "Organizations launching scalable mission initiatives and multiplying catalytic work.",
-          gates: ["Church Planting", "Justice Networks", "Global Mission", "Citywide Collaboration"],
-        },
-      ],
-    },
-    {
-      id: "t3",
-      title: "Terminal 3, Philanthropy and Capital",
-      short: "Donors, foundations, grant makers, and impact investors",
-      type: "Terminal",
-      icon: HandCoins,
-      color: palette.gold,
-      description:
-        "Terminal 3 is designed for those who steward resources. It helps philanthropists and grant makers see real needs, discover credible opportunities, follow community data, and invest where people, organizations, and neighborhoods are ready for meaningful movement.",
-      passengers: ["Donors", "Foundations", "Grant makers", "Impact investors", "Family offices", "Corporate giving teams"],
-      marketplace: ["Giving intelligence", "Impact dashboards", "Funding pathways", "Field briefings", "Opportunity portfolios", "Capital strategy"],
-      concourses: [
-        {
-          id: "t3-c1",
-          title: "Concourse K, Restoration Investment",
-          type: "Concourse",
-          description: "Capital pathways for healing, recovery, stabilization, and rebuilding environments of hope.",
-          gates: ["Recovery Funding", "Housing", "Trauma Response", "Reentry Support"],
-        },
-        {
-          id: "t3-c2",
-          title: "Concourse L, Belonging Investment",
-          type: "Concourse",
-          description: "Capital pathways that strengthen community fabric, mentoring ecosystems, and trusted relationships.",
-          gates: ["Neighborhood Projects", "Mentoring", "Church Partnerships", "Community Hubs"],
-        },
-        {
-          id: "t3-c3",
-          title: "Concourse M, Formation Investment",
-          type: "Concourse",
-          description: "Capital pathways that develop leaders, deepen spiritual formation, and expand long-term human capacity.",
-          gates: ["Leadership Development", "Disciple Making", "Formation Tracks", "Calling Discovery"],
-        },
-        {
-          id: "t3-c4",
-          title: "Concourse N, Enterprise Investment",
-          type: "Concourse",
-          description: "Capital pathways for sustainable ventures, work creation, and productive community renewal.",
-          gates: ["Social Enterprise", "Entrepreneurship", "Workforce Funding", "Innovation Pilots"],
-        },
-        {
-          id: "t3-c5",
-          title: "Concourse O, Mission Investment",
-          type: "Concourse",
-          description: "Capital pathways that fuel multiplication, justice, sending, and mission at ecosystem scale.",
-          gates: ["Mission Networks", "Justice Projects", "Church Planting", "Global Initiatives"],
-        },
-      ],
-    },
-  ],
-};
+    .app {
+      max-width: 1720px;
+      margin: 0 auto;
+      padding: 28px;
+    }
 
-const searchable = [
-  airport.airport,
-  airport.tower,
-  ...airport.terminals,
-  ...airport.terminals.flatMap((t) => t.concourses.map((c) => ({ ...c, terminalTitle: t.title }))),
-];
+    .hero {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 24px;
+      align-items: end;
+      margin-bottom: 24px;
+    }
 
-const viewBoxes = {
-  airport: "0 0 1600 980",
-  tower: "645 40 310 280",
-  t1: "40 260 520 500",
-  t2: "540 260 520 500",
-  t3: "1040 260 520 500",
-  "t1-c1": "70 390 115 265",
-  "t1-c2": "170 390 115 265",
-  "t1-c3": "270 390 115 265",
-  "t1-c4": "370 390 115 265",
-  "t1-c5": "470 390 115 265",
-  "t2-c1": "570 390 115 265",
-  "t2-c2": "670 390 115 265",
-  "t2-c3": "770 390 115 265",
-  "t2-c4": "870 390 115 265",
-  "t2-c5": "970 390 115 265",
-  "t3-c1": "1070 390 115 265",
-  "t3-c2": "1170 390 115 265",
-  "t3-c3": "1270 390 115 265",
-  "t3-c4": "1370 390 115 265",
-  "t3-c5": "1470 390 115 265",
-};
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.88);
+      box-shadow: 0 6px 20px rgba(20,42,63,0.05);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
 
-function useAnimatedViewBox(target) {
-  const [box, setBox] = useState(viewBoxes.airport);
-  const rafRef = useRef(null);
+    h1 {
+      margin: 0;
+      font-size: clamp(34px, 5vw, 64px);
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+    }
 
-  useEffect(() => {
-    const start = box.split(" ").map(Number);
-    const end = (viewBoxes[target] || viewBoxes.airport).split(" ").map(Number);
-    const startTime = performance.now();
-    const duration = 650;
+    .hero p {
+      margin: 16px 0 0;
+      max-width: 980px;
+      font-size: 18px;
+      line-height: 1.7;
+      color: var(--muted);
+    }
 
-    const tick = (now) => {
-      const t = Math.min((now - startTime) / duration, 1);
-      const eased = 1 - Math.pow(1 - t, 3);
-      const next = start.map((v, i) => v + (end[i] - v) * eased);
-      setBox(next.map((n) => Number(n.toFixed(2))).join(" "));
-      if (t < 1) rafRef.current = requestAnimationFrame(tick);
+    .controls {
+      background: rgba(255,255,255,0.92);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .search-wrap {
+      position: relative;
+      margin-bottom: 14px;
+    }
+
+    .search-wrap input {
+      width: 100%;
+      height: 50px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: var(--panel-soft);
+      padding: 0 16px 0 44px;
+      font-size: 15px;
+      color: var(--text);
+      outline: none;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .control-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn {
+      appearance: none;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 11px 14px;
+      background: white;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(20,42,63,0.08); }
+    .btn.primary { background: var(--navy); color: white; border-color: var(--navy); }
+
+    .search-results {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .search-result {
+      border: 1px solid var(--line);
+      background: var(--panel-soft);
+      border-radius: 14px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    .search-result:hover { background: #eef5fb; }
+    .search-result-title { font-weight: 700; font-size: 14px; }
+    .search-result-type { color: var(--muted); font-size: 12px; margin-top: 3px; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.45fr 0.72fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .map-card,
+    .panel-card {
+      background: rgba(255,255,255,0.96);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .map-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #fafcff 0%, #f3f7fb 100%);
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .map-wrap {
+      height: 840px;
+      overflow: hidden;
+      background: linear-gradient(180deg, #f8fbfe 0%, #edf3f8 100%);
+    }
+
+    svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .area {
+      cursor: pointer;
+      transition: 0.16s ease;
+    }
+
+    .area:hover .hover-stroke {
+      stroke: var(--navy);
+      stroke-width: 3;
+      fill: rgba(16,58,99,0.05);
+    }
+
+    .panel-header {
+      padding: 24px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .panel-title {
+      margin: 14px 0 0;
+      font-size: 30px;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+    }
+
+    .panel-subtitle {
+      margin-top: 8px;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .panel-body {
+      padding: 24px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .section-label {
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .panel-copy {
+      color: #314454;
+      line-height: 1.75;
+      font-size: 14px;
+    }
+
+    .pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      padding: 8px 11px;
+      border-radius: 999px;
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      color: #33485a;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .detail-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .detail-item {
+      display: flex;
+      gap: 8px;
+      color: #33485a;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      padding: 16px 18px 20px;
+      border-top: 1px solid var(--line);
+      background: rgba(248,251,254,0.75);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .legend-swatch {
+      width: 16px;
+      height: 16px;
+      border-radius: 5px;
+      border: 1px solid rgba(0,0,0,0.1);
+      flex: 0 0 auto;
+    }
+
+    @media (max-width: 1200px) {
+      .hero, .layout { grid-template-columns: 1fr; }
+      .map-wrap { height: 700px; }
+    }
+
+    @media (max-width: 720px) {
+      .app { padding: 16px; }
+      .map-wrap { height: 560px; }
+      .legend { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="hero">
+      <div>
+        <div class="eyebrow">✈ PurposeOS airport map experience</div>
+        <h1>PurposeOS as a polished airport map, built for GitHub Pages</h1>
+        <p>
+          This version is a single deployable HTML file designed to work cleanly in a GitHub repository.
+          It uses an airline-map visual language inspired by airport maps, with neat terminal geometry,
+          clickable concourses, gate aircraft, and smooth zooming into each area.
+        </p>
+      </div>
+
+      <div class="controls">
+        <div class="search-wrap">
+          <div class="search-icon">⌕</div>
+          <input id="searchInput" type="text" placeholder="Search terminal, concourse, or tower" />
+        </div>
+        <div class="control-buttons">
+          <button class="btn primary" id="wholeAirportBtn">Whole airport</button>
+          <button class="btn" id="zoomSelectedBtn">Zoom to selected</button>
+          <button class="btn" id="resetBtn">Reset</button>
+        </div>
+        <div class="search-results" id="searchResults"></div>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="map-card">
+        <div class="map-topbar">
+          <div>Interactive airport plan</div>
+          <div>Click a terminal, concourse, or tower to zoom in</div>
+        </div>
+        <div class="map-wrap">
+          <svg id="airportSvg" viewBox="0 0 1600 980" aria-label="PurposeOS Airport Map">
+            <rect x="0" y="0" width="1600" height="980" fill="#eef3f7"></rect>
+            <rect x="0" y="760" width="1600" height="220" fill="#dfe8f0" opacity="0.25"></rect>
+
+            <rect x="130" y="138" width="1340" height="84" rx="36" fill="#103a63"></rect>
+            <text x="172" y="191" fill="#ffffff" font-size="34" font-weight="700" letter-spacing="5">PURPOSEOS INTERNATIONAL AIRPORT</text>
+
+            <rect x="222" y="230" width="1155" height="515" rx="132" fill="#eadaba" opacity="0.86"></rect>
+            <rect x="240" y="250" width="1120" height="470" rx="112" fill="rgba(255,255,255,0.26)"></rect>
+
+            <rect x="650" y="92" width="300" height="110" rx="22" fill="#103a63"></rect>
+            <rect x="700" y="164" width="210" height="154" rx="24" fill="#f8dce5" stroke="#d37d95" stroke-width="3"></rect>
+            <circle cx="805" cy="145" r="18" fill="#ffffff" opacity="0.84"></circle>
+            <text x="744" y="228" fill="#1d2b39" font-size="23" font-weight="700">Control Tower</text>
+
+            <rect x="112" y="420" width="448" height="145" rx="28" fill="#f8dce5" stroke="#d37d95" stroke-width="2.4"></rect>
+            <rect x="562" y="420" width="476" height="145" rx="28" fill="#dcecff" stroke="#2f7dd3" stroke-width="2.4"></rect>
+            <rect x="1042" y="420" width="448" height="145" rx="28" fill="#f6ead0" stroke="#c79133" stroke-width="2.4"></rect>
+
+            <text x="148" y="477" fill="#1d2b39" font-size="24" font-weight="700">Terminal 1</text>
+            <text x="603" y="477" fill="#1d2b39" font-size="24" font-weight="700">Terminal 2</text>
+            <text x="1086" y="477" fill="#1d2b39" font-size="24" font-weight="700">Terminal 3</text>
+
+            <text x="148" y="505" fill="#66788a" font-size="14">Individuals and pathways</text>
+            <text x="603" y="505" fill="#66788a" font-size="14">Organizations and partnerships</text>
+            <text x="1086" y="505" fill="#66788a" font-size="14">Philanthropy and capital</text>
+
+            <rect x="204" y="334" width="1188" height="42" rx="18" fill="#ccd5de"></rect>
+            <rect x="302" y="370" width="980" height="28" rx="14" fill="#aeb9c5"></rect>
+            <rect x="204" y="694" width="1188" height="26" rx="12" fill="#aeb9c5"></rect>
+
+            <g opacity="0.95">
+              <path d="M320 322 L320 284" stroke="#95a5b6" stroke-width="2" stroke-dasharray="5 5"></path>
+              <path d="M804 322 L804 284" stroke="#95a5b6" stroke-width="2" stroke-dasharray="5 5"></path>
+              <path d="M1280 322 L1280 284" stroke="#95a5b6" stroke-width="2" stroke-dasharray="5 5"></path>
+            </g>
+
+            <g id="planes-and-gates">
+              <g>
+                <rect x="168" y="286" width="25" height="138" rx="7" fill="#dcecff" stroke="#2f7dd3" stroke-width="2"></rect>
+                <rect x="148" y="304" width="20" height="12" rx="4" fill="#2f7dd3" opacity="0.65"></rect>
+                <text x="180" y="410" font-size="10" text-anchor="middle" fill="#1d2b39" font-weight="700">A1</text>
+                <g transform="translate(138 315) scale(1.08)">
+                  <path d="M0 -6 L26 -1 L26 1 L0 6 L-7 14 L-11 14 L-8 5 L-25 7 L-28 3 L-14 0 L-28 -3 L-25 -7 L-8 -5 L-11 -14 L-7 -14 Z" fill="#ffffff" stroke="#103a63" stroke-width="1"></path>
+                </g>
+              </g>
+              <g>
+                <rect x="205" y="286" width="25" height="138" rx="7" fill="#dcecff" stroke="#2f7dd3" stroke-width="2"></rect>
+                <rect x="185" y="304" width="20" height="12" rx="4" fill="#2f7dd3" opacity="0.65"></rect>
+                <text x="217" y="410" font-size="10" text-anchor="middle" fill="#1d2b39" font-weight="700">A2</text>
+                <g transform="translate(175 315) scale(1.08)">
+                  <path d="M0 -6 L26 -1 L26 1 L0 6 L-7 14 L-11 14 L-8 5 L-25 7 L-28 3 L-14 0 L-28 -3 L-25 -7 L-8 -5 L-11 -14 L-7 -14 Z" fill="#ffffff" stroke="#103a63" stroke-width="1"></path>
+                </g>
+              </g>
+              <g>
+                <rect x="1245" y="286" width="25" height="138" rx="7" fill="#dcecff" stroke="#2f7dd3" stroke-width="2"></rect>
+                <rect x="1270" y="304" width="20" height="12" rx="4" fill="#2f7dd3" opacity="0.65"></rect>
+                <text x="1258" y="410" font-size="10" text-anchor="middle" fill="#1d2b39" font-weight="700">N1</text>
+                <g transform="translate(1296 315) scale(1.08) rotate(180)">
+                  <path d="M0 -6 L26 -1 L26 1 L0 6 L-7 14 L-11 14 L-8 5 L-25 7 L-28 3 L-14 0 L-28 -3 L-25 -7 L-8 -5 L-11 -14 L-7 -14 Z" fill="#ffffff" stroke="#103a63" stroke-width="1"></path>
+                </g>
+              </g>
+              <g>
+                <rect x="1282" y="286" width="25" height="138" rx="7" fill="#dcecff" stroke="#2f7dd3" stroke-width="2"></rect>
+                <rect x="1307" y="304" width="20" height="12" rx="4" fill="#2f7dd3" opacity="0.65"></rect>
+                <text x="1294" y="410" font-size="10" text-anchor="middle" fill="#1d2b39" font-weight="700">O1</text>
+                <g transform="translate(1333 315) scale(1.08) rotate(180)">
+                  <path d="M0 -6 L26 -1 L26 1 L0 6 L-7 14 L-11 14 L-8 5 L-25 7 L-28 3 L-14 0 L-28 -3 L-25 -7 L-8 -5 L-11 -14 L-7 -14 Z" fill="#ffffff" stroke="#103a63" stroke-width="1"></path>
+                </g>
+              </g>
+              <g transform="translate(790 350) rotate(90) scale(1.35)">
+                <path d="M0 -6 L26 -1 L26 1 L0 6 L-7 14 L-11 14 L-8 5 L-25 7 L-28 3 L-14 0 L-28 -3 L-25 -7 L-8 -5 L-11 -14 L-7 -14 Z" fill="#ffffff" stroke="#103a63" stroke-width="1"></path>
+              </g>
+              <g transform="translate(896 350) rotate(90) scale(1.05)">
+                <path d="M0 -6 L26 -1 L26 1 L0 6 L-7 14 L-11 14 L-8 5 L-25 7 L-28 3 L-14 0 L-28 -3 L-25 -7 L-8 -5 L-11 -14 L-7 -14 Z" fill="#ffffff" stroke="#103a63" stroke-width="1"></path>
+              </g>
+            </g>
+
+            <g opacity="0.95">
+              <g transform="translate(262 520)"><path d="M0 0 c 10 -8, 18 -8, 28 0 c -10 8, -18 8, -28 0" fill="none" stroke="#5e9d61" stroke-width="3"></path><path d="M4 6 c 6 9, 14 9, 20 0" fill="none" stroke="#5e9d61" stroke-width="3"></path></g>
+              <g transform="translate(332 520)"><path d="M0 0 c 10 -8, 18 -8, 28 0 c -10 8, -18 8, -28 0" fill="none" stroke="#5e9d61" stroke-width="3"></path><path d="M4 6 c 6 9, 14 9, 20 0" fill="none" stroke="#5e9d61" stroke-width="3"></path></g>
+              <g transform="translate(402 520)"><path d="M0 0 c 10 -8, 18 -8, 28 0 c -10 8, -18 8, -28 0" fill="none" stroke="#5e9d61" stroke-width="3"></path><path d="M4 6 c 6 9, 14 9, 20 0" fill="none" stroke="#5e9d61" stroke-width="3"></path></g>
+              <g transform="translate(472 520)"><path d="M0 0 c 10 -8, 18 -8, 28 0 c -10 8, -18 8, -28 0" fill="none" stroke="#5e9d61" stroke-width="3"></path><path d="M4 6 c 6 9, 14 9, 20 0" fill="none" stroke="#5e9d61" stroke-width="3"></path></g>
+              <g transform="translate(542 520)"><path d="M0 0 c 10 -8, 18 -8, 28 0 c -10 8, -18 8, -28 0" fill="none" stroke="#5e9d61" stroke-width="3"></path><path d="M4 6 c 6 9, 14 9, 20 0" fill="none" stroke="#5e9d61" stroke-width="3"></path></g>
+              <g transform="translate(612 520)"><path d="M0 0 c 10 -8, 18 -8, 28 0 c -10 8, -18 8, -28 0" fill="none" stroke="#5e9d61" stroke-width="3"></path><path d="M4 6 c 6 9, 14 9, 20 0" fill="none" stroke="#5e9d61" stroke-width="3"></path></g>
+              <g transform="translate(682 520)"><path d="M0 0 c 10 -8, 18 -8, 28 0 c -10 8, -18 8, -28 0" fill="none" stroke="#5e9d61" stroke-width="3"></path><path d="M4 6 c 6 9, 14 9, 20 0" fill="none" stroke="#5e9d61" stroke-width="3"></path></g>
+              <g transform="translate(752 520)"><path d="M0 0 c 10 -8, 18 -8, 28 0 c -10 8, -18 8, -28 0" fill="none" stroke="#5e9d61" stroke-width="3"></path><path d="M4 6 c 6 9, 14 9, 20 0" fill="none" stroke="#5e9d61" stroke-width="3"></path></g>
+              <g transform="translate(822 520)"><path d="M0 0 c 10 -8, 18 -8, 28 0 c -10 8, -18 8, -28 0" fill="none" stroke="#5e9d61" stroke-width="3"></path><path d="M4 6 c 6 9, 14 9, 20 0" fill="none" stroke="#5e9d61" stroke-width="3"></path></g>
+              <g transform="translate(892 520)"><path d="M0 0 c 10 -8, 18 -8, 28 0 c -10 8, -18 8, -28 0" fill="none" stroke="#5e9d61" stroke-width="3"></path><path d="M4 6 c 6 9, 14 9, 20 0" fill="none" stroke="#5e9d61" stroke-width="3"></path></g>
+              <g transform="translate(962 520)"><path d="M0 0 c 10 -8, 18 -8, 28 0 c -10 8, -18 8, -28 0" fill="none" stroke="#5e9d61" stroke-width="3"></path><path d="M4 6 c 6 9, 14 9, 20 0" fill="none" stroke="#5e9d61" stroke-width="3"></path></g>
+              <g transform="translate(1032 520)"><path d="M0 0 c 10 -8, 18 -8, 28 0 c -10 8, -18 8, -28 0" fill="none" stroke="#5e9d61" stroke-width="3"></path><path d="M4 6 c 6 9, 14 9, 20 0" fill="none" stroke="#5e9d61" stroke-width="3"></path></g>
+              <g transform="translate(1102 520)"><path d="M0 0 c 10 -8, 18 -8, 28 0 c -10 8, -18 8, -28 0" fill="none" stroke="#5e9d61" stroke-width="3"></path><path d="M4 6 c 6 9, 14 9, 20 0" fill="none" stroke="#5e9d61" stroke-width="3"></path></g>
+              <g transform="translate(1172 520)"><path d="M0 0 c 10 -8, 18 -8, 28 0 c -10 8, -18 8, -28 0" fill="none" stroke="#5e9d61" stroke-width="3"></path><path d="M4 6 c 6 9, 14 9, 20 0" fill="none" stroke="#5e9d61" stroke-width="3"></path></g>
+            </g>
+
+            <g id="concourses">
+              <rect x="120" y="570" width="70" height="110" rx="18" fill="#dff0df" stroke="#5e9d61" stroke-width="2"></rect>
+              <rect x="210" y="570" width="70" height="110" rx="18" fill="#dff0df" stroke="#5e9d61" stroke-width="2"></rect>
+              <rect x="300" y="570" width="70" height="110" rx="18" fill="#dcecff" stroke="#2f7dd3" stroke-width="2"></rect>
+              <rect x="390" y="570" width="70" height="110" rx="18" fill="#f6ead0" stroke="#c79133" stroke-width="2"></rect>
+              <rect x="480" y="570" width="70" height="110" rx="18" fill="#eadff9" stroke="#8d6ec6" stroke-width="2"></rect>
+              <rect x="570" y="570" width="70" height="110" rx="18" fill="#dff0df" stroke="#5e9d61" stroke-width="2"></rect>
+              <rect x="660" y="570" width="70" height="110" rx="18" fill="#dff0df" stroke="#5e9d61" stroke-width="2"></rect>
+              <rect x="750" y="570" width="70" height="110" rx="18" fill="#dcecff" stroke="#2f7dd3" stroke-width="2"></rect>
+              <rect x="840" y="570" width="70" height="110" rx="18" fill="#f6ead0" stroke="#c79133" stroke-width="2"></rect>
+              <rect x="930" y="570" width="70" height="110" rx="18" fill="#eadff9" stroke="#8d6ec6" stroke-width="2"></rect>
+              <rect x="1055" y="570" width="70" height="110" rx="18" fill="#dff0df" stroke="#5e9d61" stroke-width="2"></rect>
+              <rect x="1145" y="570" width="70" height="110" rx="18" fill="#dff0df" stroke="#5e9d61" stroke-width="2"></rect>
+              <rect x="1235" y="570" width="70" height="110" rx="18" fill="#dcecff" stroke="#2f7dd3" stroke-width="2"></rect>
+              <rect x="1325" y="570" width="70" height="110" rx="18" fill="#f6ead0" stroke="#c79133" stroke-width="2"></rect>
+              <rect x="1415" y="570" width="70" height="110" rx="18" fill="#eadff9" stroke="#8d6ec6" stroke-width="2"></rect>
+
+              <text x="132" y="628" font-size="28" font-weight="700" fill="#1d2b39">A</text>
+              <text x="222" y="628" font-size="28" font-weight="700" fill="#1d2b39">B</text>
+              <text x="312" y="628" font-size="28" font-weight="700" fill="#1d2b39">C</text>
+              <text x="402" y="628" font-size="28" font-weight="700" fill="#1d2b39">D</text>
+              <text x="492" y="628" font-size="28" font-weight="700" fill="#1d2b39">E</text>
+              <text x="582" y="628" font-size="28" font-weight="700" fill="#1d2b39">F</text>
+              <text x="672" y="628" font-size="28" font-weight="700" fill="#1d2b39">G</text>
+              <text x="762" y="628" font-size="28" font-weight="700" fill="#1d2b39">H</text>
+              <text x="852" y="628" font-size="28" font-weight="700" fill="#1d2b39">I</text>
+              <text x="942" y="628" font-size="28" font-weight="700" fill="#1d2b39">J</text>
+              <text x="1067" y="628" font-size="28" font-weight="700" fill="#1d2b39">K</text>
+              <text x="1157" y="628" font-size="28" font-weight="700" fill="#1d2b39">L</text>
+              <text x="1247" y="628" font-size="28" font-weight="700" fill="#1d2b39">M</text>
+              <text x="1337" y="628" font-size="28" font-weight="700" fill="#1d2b39">N</text>
+              <text x="1427" y="628" font-size="28" font-weight="700" fill="#1d2b39">O</text>
+            </g>
+
+            <text x="312" y="414" fill="#66788a" font-size="12">Check in</text>
+            <text x="790" y="414" fill="#66788a" font-size="12">Security and routing</text>
+            <text x="1210" y="414" fill="#66788a" font-size="12">Capital and partner check in</text>
+
+            <g class="area" data-id="airport">
+              <rect class="hover-stroke" x="130" y="138" width="1340" height="84" rx="36" fill="transparent" stroke="transparent"></rect>
+            </g>
+            <g class="area" data-id="tower">
+              <rect class="hover-stroke" x="700" y="164" width="210" height="154" rx="24" fill="transparent" stroke="transparent"></rect>
+            </g>
+            <g class="area" data-id="t1">
+              <rect class="hover-stroke" x="112" y="420" width="448" height="145" rx="28" fill="transparent" stroke="transparent"></rect>
+            </g>
+            <g class="area" data-id="t2">
+              <rect class="hover-stroke" x="562" y="420" width="476" height="145" rx="28" fill="transparent" stroke="transparent"></rect>
+            </g>
+            <g class="area" data-id="t3">
+              <rect class="hover-stroke" x="1042" y="420" width="448" height="145" rx="28" fill="transparent" stroke="transparent"></rect>
+            </g>
+
+            <g class="area" data-id="t1-c1"><rect class="hover-stroke" x="120" y="570" width="70" height="110" rx="18" fill="transparent" stroke="transparent"></rect></g>
+            <g class="area" data-id="t1-c2"><rect class="hover-stroke" x="210" y="570" width="70" height="110" rx="18" fill="transparent" stroke="transparent"></rect></g>
+            <g class="area" data-id="t1-c3"><rect class="hover-stroke" x="300" y="570" width="70" height="110" rx="18" fill="transparent" stroke="transparent"></rect></g>
+            <g class="area" data-id="t1-c4"><rect class="hover-stroke" x="390" y="570" width="70" height="110" rx="18" fill="transparent" stroke="transparent"></rect></g>
+            <g class="area" data-id="t1-c5"><rect class="hover-stroke" x="480" y="570" width="70" height="110" rx="18" fill="transparent" stroke="transparent"></rect></g>
+            <g class="area" data-id="t2-c1"><rect class="hover-stroke" x="570" y="570" width="70" height="110" rx="18" fill="transparent" stroke="transparent"></rect></g>
+            <g class="area" data-id="t2-c2"><rect class="hover-stroke" x="660" y="570" width="70" height="110" rx="18" fill="transparent" stroke="transparent"></rect></g>
+            <g class="area" data-id="t2-c3"><rect class="hover-stroke" x="750" y="570" width="70" height="110" rx="18" fill="transparent" stroke="transparent"></rect></g>
+            <g class="area" data-id="t2-c4"><rect class="hover-stroke" x="840" y="570" width="70" height="110" rx="18" fill="transparent" stroke="transparent"></rect></g>
+            <g class="area" data-id="t2-c5"><rect class="hover-stroke" x="930" y="570" width="70" height="110" rx="18" fill="transparent" stroke="transparent"></rect></g>
+            <g class="area" data-id="t3-c1"><rect class="hover-stroke" x="1055" y="570" width="70" height="110" rx="18" fill="transparent" stroke="transparent"></rect></g>
+            <g class="area" data-id="t3-c2"><rect class="hover-stroke" x="1145" y="570" width="70" height="110" rx="18" fill="transparent" stroke="transparent"></rect></g>
+            <g class="area" data-id="t3-c3"><rect class="hover-stroke" x="1235" y="570" width="70" height="110" rx="18" fill="transparent" stroke="transparent"></rect></g>
+            <g class="area" data-id="t3-c4"><rect class="hover-stroke" x="1325" y="570" width="70" height="110" rx="18" fill="transparent" stroke="transparent"></rect></g>
+            <g class="area" data-id="t3-c5"><rect class="hover-stroke" x="1415" y="570" width="70" height="110" rx="18" fill="transparent" stroke="transparent"></rect></g>
+          </svg>
+        </div>
+
+        <div class="legend">
+          <div class="legend-item"><span class="legend-swatch" style="background:#f8dce5"></span> Terminal building</div>
+          <div class="legend-item"><span class="legend-swatch" style="background:#dcecff"></span> Formation and organization zones</div>
+          <div class="legend-item"><span class="legend-swatch" style="background:#f6ead0"></span> Public commons and circulation</div>
+          <div class="legend-item"><span class="legend-swatch" style="background:#ccd5de"></span> Taxiways and apron</div>
+          <div class="legend-item"><span class="legend-swatch" style="background:#2f7dd3"></span> Gates and bridges</div>
+          <div class="legend-item"><span class="legend-swatch" style="background:#dff0df"></span> Waiting and seating zones</div>
+        </div>
+      </div>
+
+      <div class="panel-card">
+        <div class="panel-header">
+          <div class="chip" id="panelType">Airport</div>
+          <div class="panel-title" id="panelTitle">PurposeOS Airport</div>
+          <div class="panel-subtitle" id="panelSubtitle">A living ecosystem built like a real international terminal</div>
+        </div>
+        <div class="panel-body">
+          <div>
+            <div class="section-label">Overview</div>
+            <div class="panel-copy" id="panelDescription"></div>
+          </div>
+          <div id="detailSection">
+            <div class="section-label" id="detailLabel">Core structure</div>
+            <div class="detail-list" id="detailList"></div>
+          </div>
+          <div id="pillsSection">
+            <div class="section-label" id="pillLabel">Passengers</div>
+            <div class="pill-list" id="pillList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const data = {
+      airport: {
+        id: 'airport', type: 'Airport', title: 'PurposeOS Airport', subtitle: 'A living ecosystem built like a real international terminal',
+        description: 'PurposeOS is the full airport, a coordinated environment where people arrive, get oriented, connect to pathways, board into aligned opportunities, and move toward meaningful impact. Each terminal serves a different passenger type, each concourse organizes a different lane of purpose, and the tower aligns movement intelligence across the whole system.',
+        details: ['Terminal 1 develops individuals', 'Terminal 2 equips organizations', 'Terminal 3 mobilizes philanthropy and capital', 'The Control Tower coordinates the entire ecosystem']
+      },
+      tower: {
+        id: 'tower', type: 'Control Tower', title: 'Control Tower', subtitle: 'CRM, AI, ecosystem intelligence, routing, and measurement',
+        description: 'The tower is the nervous system of the airport. It tracks needs, relationships, initiatives, resource flow, leader development, and opportunity matching. It sees what is forming, what is ready for takeoff, what gates are active, and where capital or support needs to be directed.',
+        details: ['CRM and relationship intelligence', 'Opportunity matching', 'Ecosystem dashboards', 'AI-guided navigation', 'Funding and initiative visibility', 'Movement health monitoring']
+      },
+      t1: {
+        id: 't1', type: 'Terminal', title: 'Terminal 1, Individual Pathways', subtitle: 'Individuals, emerging leaders, participants, and everyday disciples',
+        description: 'Terminal 1 is where people enter the airport personally. They discover identity, purpose, belonging, formation, and readiness for mission. This terminal helps people move from uncertainty to clarity, from isolation to connection, and from passive interest to active engagement.',
+        pills: ['Individuals', 'Young adults', 'Leaders in development', 'Volunteers', 'Career pivots', 'Disciple makers'],
+        details: ['Kaleo', 'Life Mapping U', 'Assessments', 'Coaching', 'PurposeOS pathways', 'Workshops']
+      },
+      t2: {
+        id: 't2', type: 'Terminal', title: 'Terminal 2, Organizational Pathways', subtitle: 'Churches, nonprofits, ministries, schools, and collaborative ventures',
+        description: 'Terminal 2 is where organizations enter the airport. They discover aligned leaders, practical tools, strategic partnerships, training experiences, and the infrastructure needed to launch and strengthen initiatives that serve the common good.',
+        pills: ['Churches', 'Nonprofits', 'Schools', 'Ministries', 'Founders', 'Executive teams'],
+        details: ['Leadership training', 'Team development', 'Board support', 'Strategic planning', 'Hub pathways', 'Partner ecosystems']
+      },
+      t3: {
+        id: 't3', type: 'Terminal', title: 'Terminal 3, Philanthropy and Capital', subtitle: 'Donors, foundations, grant makers, and impact investors',
+        description: 'Terminal 3 is designed for those who steward resources. It helps philanthropists and grant makers see real needs, discover credible opportunities, follow community data, and invest where people, organizations, and neighborhoods are ready for meaningful movement.',
+        pills: ['Donors', 'Foundations', 'Grant makers', 'Impact investors', 'Family offices', 'Corporate giving teams'],
+        details: ['Giving intelligence', 'Impact dashboards', 'Funding pathways', 'Field briefings', 'Opportunity portfolios', 'Capital strategy']
+      },
+      't1-c1': { id: 't1-c1', type: 'Concourse', title: 'Concourse A, Restoration', subtitle: 'Healing and readiness pathways', description: 'Pathways that help people move from survival and instability toward healing, readiness, and renewed direction.', pills: ['Recovery', 'Trauma Care', 'Reentry', 'Financial Stability'] },
+      't1-c2': { id: 't1-c2', type: 'Concourse', title: 'Concourse B, Belonging', subtitle: 'Relational pathways', description: 'Relational lanes that move people from isolation into community, trust, support, and shared life.', pills: ['Mentoring', 'Church Connection', 'Community Integration', 'Relational Support'] },
+      't1-c3': { id: 't1-c3', type: 'Concourse', title: 'Concourse C, Personal Transformation', subtitle: 'Formation and identity pathways', description: 'Formation lanes that help people discover identity, deepen with Christ, and clarify calling and vocation.', pills: ['Disciple Making', 'Identity', 'Calling', 'Spiritual Formation', 'Leadership Growth'] },
+      't1-c4': { id: 't1-c4', type: 'Concourse', title: 'Concourse D, Enterprising', subtitle: 'Vocational and marketplace pathways', description: 'Vocational and marketplace lanes where purpose starts taking practical form through work, initiative, and contribution.', pills: ['Entrepreneurship', 'Workforce Pathways', 'Marketplace Calling', 'Social Enterprise'] },
+      't1-c5': { id: 't1-c5', type: 'Concourse', title: 'Concourse E, Missional', subtitle: 'Multiplication pathways', description: 'Multiplication lanes where leaders step into serving, sending, and community-level impact.', pills: ['Mission', 'Community Impact', 'Justice', 'Church Planting', 'Global Engagement'] },
+      't2-c1': { id: 't2-c1', type: 'Concourse', title: 'Concourse F, Restoration Organizations', subtitle: 'Healing organizations', description: 'Organizations focused on healing, stability, intervention, and rebuilding lives.', pills: ['Recovery Centers', 'Housing Support', 'Trauma Services', 'Reentry Initiatives'] },
+      't2-c2': { id: 't2-c2', type: 'Concourse', title: 'Concourse G, Belonging and Community', subtitle: 'Community organizations', description: 'Organizations building relational ecosystems, neighborhoods, mentoring networks, and communal trust.', pills: ['Community Hubs', 'Mentoring Networks', 'Church Networks', 'Family Support'] },
+      't2-c3': { id: 't2-c3', type: 'Concourse', title: 'Concourse H, Formation and Development', subtitle: 'Development organizations', description: 'Organizations equipping people in leadership, discipleship, identity, and purpose formation.', pills: ['Leadership Cohorts', 'Disciple Making', 'Formation Programs', 'Purpose Discovery'] },
+      't2-c4': { id: 't2-c4', type: 'Concourse', title: 'Concourse I, Enterprise and Innovation', subtitle: 'Innovation organizations', description: 'Organizations turning vision into sustainable models, ventures, and vocational ecosystems.', pills: ['Social Enterprise', 'Entrepreneur Support', 'Workforce Innovation', 'Business Training'] },
+      't2-c5': { id: 't2-c5', type: 'Concourse', title: 'Concourse J, Mission and Multiplication', subtitle: 'Multiplication organizations', description: 'Organizations launching scalable mission initiatives and multiplying catalytic work.', pills: ['Church Planting', 'Justice Networks', 'Global Mission', 'Citywide Collaboration'] },
+      't3-c1': { id: 't3-c1', type: 'Concourse', title: 'Concourse K, Restoration Investment', subtitle: 'Restoration capital pathways', description: 'Capital pathways for healing, recovery, stabilization, and rebuilding environments of hope.', pills: ['Recovery Funding', 'Housing', 'Trauma Response', 'Reentry Support'] },
+      't3-c2': { id: 't3-c2', type: 'Concourse', title: 'Concourse L, Belonging Investment', subtitle: 'Community capital pathways', description: 'Capital pathways that strengthen community fabric, mentoring ecosystems, and trusted relationships.', pills: ['Neighborhood Projects', 'Mentoring', 'Church Partnerships', 'Community Hubs'] },
+      't3-c3': { id: 't3-c3', type: 'Concourse', title: 'Concourse M, Formation Investment', subtitle: 'Formation capital pathways', description: 'Capital pathways that develop leaders, deepen spiritual formation, and expand long-term human capacity.', pills: ['Leadership Development', 'Disciple Making', 'Formation Tracks', 'Calling Discovery'] },
+      't3-c4': { id: 't3-c4', type: 'Concourse', title: 'Concourse N, Enterprise Investment', subtitle: 'Enterprise capital pathways', description: 'Capital pathways for sustainable ventures, work creation, and productive community renewal.', pills: ['Social Enterprise', 'Entrepreneurship', 'Workforce Funding', 'Innovation Pilots'] },
+      't3-c5': { id: 't3-c5', type: 'Concourse', title: 'Concourse O, Mission Investment', subtitle: 'Mission capital pathways', description: 'Capital pathways that fuel multiplication, justice, sending, and mission at ecosystem scale.', pills: ['Mission Networks', 'Justice Projects', 'Church Planting', 'Global Initiatives'] }
     };
 
-    cancelAnimationFrame(rafRef.current);
-    rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [target]);
+    const viewBoxes = {
+      airport: '0 0 1600 980',
+      tower: '650 100 320 280',
+      t1: '80 340 520 420',
+      t2: '540 340 520 420',
+      t3: '1020 340 520 420',
+      't1-c1': '95 540 120 170',
+      't1-c2': '185 540 120 170',
+      't1-c3': '275 540 120 170',
+      't1-c4': '365 540 120 170',
+      't1-c5': '455 540 120 170',
+      't2-c1': '545 540 120 170',
+      't2-c2': '635 540 120 170',
+      't2-c3': '725 540 120 170',
+      't2-c4': '815 540 120 170',
+      't2-c5': '905 540 120 170',
+      't3-c1': '1030 540 120 170',
+      't3-c2': '1120 540 120 170',
+      't3-c3': '1210 540 120 170',
+      't3-c4': '1300 540 120 170',
+      't3-c5': '1390 540 120 170'
+    };
 
-  return box;
-}
+    const svg = document.getElementById('airportSvg');
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+    const panelType = document.getElementById('panelType');
+    const panelTitle = document.getElementById('panelTitle');
+    const panelSubtitle = document.getElementById('panelSubtitle');
+    const panelDescription = document.getElementById('panelDescription');
+    const detailLabel = document.getElementById('detailLabel');
+    const detailList = document.getElementById('detailList');
+    const pillLabel = document.getElementById('pillLabel');
+    const pillList = document.getElementById('pillList');
+    const pillsSection = document.getElementById('pillsSection');
+    const wholeAirportBtn = document.getElementById('wholeAirportBtn');
+    const zoomSelectedBtn = document.getElementById('zoomSelectedBtn');
+    const resetBtn = document.getElementById('resetBtn');
 
-function AreaButton({ children, x, y, width, height, onClick, active, label }) {
-  return (
-    <g onClick={onClick} style={{ cursor: "pointer" }}>
-      <rect
-        x={x}
-        y={y}
-        width={width}
-        height={height}
-        rx="14"
-        fill={active ? "rgba(61,118,209,0.14)" : "rgba(255,255,255,0.01)"}
-        stroke={active ? palette.blue : "rgba(31,47,63,0.08)"}
-        strokeWidth={active ? 3 : 1}
-      />
-      {children}
-      {label ? (
-        <text x={x + 12} y={y + 24} fontSize="13" fontWeight="700" fill={palette.ink}>
-          {label}
-        </text>
-      ) : null}
-    </g>
-  );
-}
+    let selectedId = 'airport';
+    let currentBox = viewBoxes.airport.split(' ').map(Number);
 
-function PlaneGraphic({ x, y, scale = 1, rotate = 0, color = palette.white }) {
-  return (
-    <g transform={`translate(${x} ${y}) scale(${scale}) rotate(${rotate})`}>
-      <path d="M0 -6 L26 -1 L26 1 L0 6 L-7 14 L-11 14 L-8 5 L-25 7 L-28 3 L-14 0 L-28 -3 L-25 -7 L-8 -5 L-11 -14 L-7 -14 Z" fill={color} stroke={palette.navy} strokeWidth="0.9" />
-    </g>
-  );
-}
+    function lerp(a, b, t) { return a + (b - a) * t; }
 
-function GatePier({ x, y, w = 25, h = 140, side = "right", gateLabel, planeX, planeY }) {
-  return (
-    <g>
-      <rect x={x} y={y} width={w} height={h} rx="7" fill={palette.building2} stroke={palette.blue} strokeWidth="2" />
-      <rect x={side === "right" ? x + w : x - 20} y={y + 18} width="20" height="12" rx="4" fill={palette.gate} opacity="0.65" />
-      <text x={x + w / 2} y={y + h - 12} fontSize="10" textAnchor="middle" fill={palette.ink} fontWeight="700">{gateLabel}</text>
-      <PlaneGraphic x={planeX} y={planeY} scale={1.1} rotate={side === "right" ? 0 : 180} />
-    </g>
-  );
-}
+    function animateViewBox(targetId) {
+      const target = (viewBoxes[targetId] || viewBoxes.airport).split(' ').map(Number);
+      const start = [...currentBox];
+      const startTime = performance.now();
+      const duration = 650;
 
-function TerminalMap({ focusId, onSelect, selectedId }) {
-  const viewBox = useAnimatedViewBox(focusId || "airport");
+      function frame(now) {
+        const elapsed = Math.min((now - startTime) / duration, 1);
+        const ease = 1 - Math.pow(1 - elapsed, 3);
+        currentBox = start.map((v, i) => lerp(v, target[i], ease));
+        svg.setAttribute('viewBox', currentBox.map(v => v.toFixed(2)).join(' '));
+        if (elapsed < 1) requestAnimationFrame(frame);
+      }
 
-  return (
-    <div className="rounded-[28px] border border-slate-300 bg-white shadow-[0_24px_80px_rgba(27,40,54,0.14)] overflow-hidden">
-      <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-5 py-3 text-sm text-slate-600">
-        <div className="flex items-center gap-2 font-medium">
-          <Map className="h-4 w-4" />
-          Interactive airport plan
+      requestAnimationFrame(frame);
+    }
+
+    function renderPanel(item) {
+      panelType.textContent = item.type || 'Section';
+      panelTitle.textContent = item.title || '';
+      panelSubtitle.textContent = item.subtitle || '';
+      panelDescription.textContent = item.description || '';
+
+      const details = item.details || [];
+      detailLabel.textContent = item.type === 'Control Tower' ? 'Tower functions' : item.type === 'Concourse' ? 'Related gateways' : item.type === 'Airport' ? 'Core structure' : 'Marketplace';
+      detailList.innerHTML = details.length
+        ? details.map(text => `<div class="detail-item"><span>›</span><span>${text}</span></div>`).join('')
+        : '<div class="detail-item"><span>›</span><span>Click another area to explore more specific pathways.</span></div>';
+
+      const pills = item.pills || [];
+      if (pills.length) {
+        pillsSection.style.display = 'block';
+        pillLabel.textContent = item.type === 'Terminal' ? 'Passengers' : 'Gates in this concourse';
+        pillList.innerHTML = pills.map(text => `<div class="pill">${text}</div>`).join('');
+      } else {
+        pillsSection.style.display = 'none';
+      }
+    }
+
+    function selectItem(id) {
+      selectedId = id;
+      renderPanel(data[id]);
+      animateViewBox(id);
+      document.querySelectorAll('.area').forEach(el => {
+        const hit = el.getAttribute('data-id') === id;
+        const rect = el.querySelector('.hover-stroke');
+        if (rect) {
+          rect.setAttribute('stroke', hit ? '#103a63' : 'transparent');
+          rect.setAttribute('stroke-width', hit ? '3' : '0');
+          rect.setAttribute('fill', hit ? 'rgba(16,58,99,0.05)' : 'transparent');
+        }
+      });
+    }
+
+    document.querySelectorAll('.area').forEach(el => {
+      el.addEventListener('click', () => selectItem(el.getAttribute('data-id')));
+    });
+
+    function runSearch(value) {
+      const q = value.trim().toLowerCase();
+      if (!q) {
+        searchResults.innerHTML = '';
+        return;
+      }
+      const results = Object.values(data).filter(item =>
+        [item.title, item.subtitle, item.description].filter(Boolean).join(' ').toLowerCase().includes(q)
+      ).slice(0, 6);
+
+      searchResults.innerHTML = results.map(item => `
+        <div class="search-result" data-search-id="${item.id}">
+          <div class="search-result-title">${item.title}</div>
+          <div class="search-result-type">${item.type}</div>
         </div>
-        <div>Click an area to zoom in</div>
-      </div>
+      `).join('');
 
-      <svg viewBox={viewBox} className="h-[820px] w-full bg-[linear-gradient(180deg,#f7fafc_0%,#edf2f7_100%)] transition-all duration-500">
-        <rect x="0" y="0" width="1600" height="980" fill={palette.bg} />
-        <rect x="0" y="740" width="1600" height="240" fill={palette.ocean} opacity="0.25" />
+      searchResults.querySelectorAll('.search-result').forEach(el => {
+        el.addEventListener('click', () => selectItem(el.getAttribute('data-search-id')));
+      });
+    }
 
-        <rect x="125" y="140" width="1350" height="85" rx="36" fill={palette.navy} />
-        <text x="170" y="192" fill={palette.white} fontSize="34" fontWeight="700" letterSpacing="5">PURPOSEOS INTERNATIONAL AIRPORT</text>
+    searchInput.addEventListener('input', e => runSearch(e.target.value));
+    wholeAirportBtn.addEventListener('click', () => selectItem('airport'));
+    zoomSelectedBtn.addEventListener('click', () => animateViewBox(selectedId));
+    resetBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      searchResults.innerHTML = '';
+      selectItem('airport');
+    });
 
-        <rect x="220" y="230" width="1160" height="510" rx="130" fill={palette.sand} opacity="0.82" />
-        <rect x="230" y="250" width="1140" height="470" rx="110" fill="rgba(255,255,255,0.28)" />
-
-        <rect x="650" y="90" width="300" height="110" rx="24" fill={palette.navy} />
-        <rect x="700" y="160" width="210" height="160" rx="22" fill={palette.building} stroke={palette.coral} strokeWidth="3" />
-        <text x="742" y="225" fill={palette.ink} fontSize="24" fontWeight="700">Tower</text>
-        <circle cx="805" cy="145" r="18" fill={palette.white} opacity="0.8" />
-
-        <rect x="108" y="420" width="450" height="145" rx="28" fill={palette.building} stroke={palette.coral} strokeWidth="2.5" />
-        <rect x="558" y="420" width="485" height="145" rx="28" fill={palette.building2} stroke={palette.blue} strokeWidth="2.5" />
-        <rect x="1043" y="420" width="450" height="145" rx="28" fill="#f4dfbb" stroke={palette.gold} strokeWidth="2.5" />
-
-        <text x="145" y="478" fill={palette.ink} fontSize="25" fontWeight="700">Terminal 1</text>
-        <text x="605" y="478" fill={palette.ink} fontSize="25" fontWeight="700">Terminal 2</text>
-        <text x="1090" y="478" fill={palette.ink} fontSize="25" fontWeight="700">Terminal 3</text>
-
-        <text x="145" y="506" fill={palette.line} fontSize="14">Individuals and pathways</text>
-        <text x="605" y="506" fill={palette.line} fontSize="14">Organizations and partners</text>
-        <text x="1090" y="506" fill={palette.line} fontSize="14">Philanthropy and capital</text>
-
-        {[
-          [120, 570, 70, 110, palette.building3, palette.green, "A"],
-          [210, 570, 70, 110, palette.building3, palette.green, "B"],
-          [300, 570, 70, 110, palette.building2, palette.blue, "C"],
-          [390, 570, 70, 110, "#f4dfbb", palette.gold, "D"],
-          [480, 570, 70, 110, "#e7daf7", "#8a6acb", "E"],
-          [570, 570, 70, 110, palette.building3, palette.green, "F"],
-          [660, 570, 70, 110, palette.building3, palette.green, "G"],
-          [750, 570, 70, 110, palette.building2, palette.blue, "H"],
-          [840, 570, 70, 110, "#f4dfbb", palette.gold, "I"],
-          [930, 570, 70, 110, "#e7daf7", "#8a6acb", "J"],
-          [1055, 570, 70, 110, palette.building3, palette.green, "K"],
-          [1145, 570, 70, 110, palette.building3, palette.green, "L"],
-          [1235, 570, 70, 110, palette.building2, palette.blue, "M"],
-          [1325, 570, 70, 110, "#f4dfbb", palette.gold, "N"],
-          [1415, 570, 70, 110, "#e7daf7", "#8a6acb", "O"],
-        ].map(([x, y, w, h, fill, stroke, letter]) => (
-          <rect key={letter} x={x} y={y} width={w} height={h} rx="18" fill={fill} stroke={stroke} strokeWidth="2" />
-        ))}
-
-        {[
-          [130, 625, "A"], [220, 625, "B"], [310, 625, "C"], [400, 625, "D"], [490, 625, "E"],
-          [580, 625, "F"], [670, 625, "G"], [760, 625, "H"], [850, 625, "I"], [940, 625, "J"],
-          [1065, 625, "K"], [1155, 625, "L"], [1245, 625, "M"], [1335, 625, "N"], [1425, 625, "O"],
-        ].map(([x, y, l]) => (
-          <text key={l} x={x} y={y} fontSize="28" fontWeight="700" fill={palette.ink}>{l}</text>
-        ))}
-
-        <rect x="200" y="335" width="1190" height="42" rx="18" fill={palette.tarmac} />
-        <rect x="300" y="370" width="980" height="28" rx="14" fill={palette.tarmacDark} opacity="0.9" />
-        <rect x="200" y="694" width="1190" height="26" rx="12" fill={palette.tarmacDark} opacity="0.88" />
-
-        <path d="M320 322 L320 286" stroke={palette.line} strokeWidth="2" strokeDasharray="5 5" />
-        <path d="M680 322 L680 286" stroke={palette.line} strokeWidth="2" strokeDasharray="5 5" />
-        <path d="M1160 322 L1160 286" stroke={palette.line} strokeWidth="2" strokeDasharray="5 5" />
-
-        <GatePier x={168} y={285} gateLabel="A1" planeX={140} planeY={316} side="left" />
-        <GatePier x={205} y={285} gateLabel="A2" planeX={177} planeY={316} side="left" />
-        <GatePier x={242} y={285} gateLabel="B1" planeX={214} planeY={316} side="left" />
-        <GatePier x={279} y={285} gateLabel="B2" planeX={251} planeY={316} side="left" />
-        <GatePier x={353} y={285} gateLabel="C1" planeX={325} planeY={316} side="left" />
-        <GatePier x={390} y={285} gateLabel="C2" planeX={362} planeY={316} side="left" />
-        <GatePier x={427} y={285} gateLabel="D1" planeX={399} planeY={316} side="left" />
-        <GatePier x={464} y={285} gateLabel="E1" planeX={436} planeY={316} side="left" />
-
-        <GatePier x={1190} y={285} gateLabel="K1" planeX={1245} planeY={316} side="right" />
-        <GatePier x={1227} y={285} gateLabel="L1" planeX={1282} planeY={316} side="right" />
-        <GatePier x={1264} y={285} gateLabel="M1" planeX={1319} planeY={316} side="right" />
-        <GatePier x={1301} y={285} gateLabel="N1" planeX={1356} planeY={316} side="right" />
-        <GatePier x={1338} y={285} gateLabel="O1" planeX={1393} planeY={316} side="right" />
-
-        <PlaneGraphic x={790} y={350} scale={1.35} rotate={90} color="#f7fbff" />
-        <PlaneGraphic x={890} y={350} scale={1.05} rotate={90} color="#f7fbff" />
-        <PlaneGraphic x={1010} y={350} scale={0.95} rotate={90} color="#f7fbff" />
-
-        <g opacity="0.9">
-          {[260, 330, 400, 470, 540, 610, 680, 750, 820, 890, 960, 1030, 1100, 1170, 1240].map((x) => (
-            <g key={x}>
-              <path d={`M${x} 520 c 10 -8, 18 -8, 28 0 c -10 8, -18 8, -28 0`} fill="none" stroke={palette.green} strokeWidth="3" />
-              <path d={`M${x + 4} 526 c 6 9, 14 9, 20 0`} fill="none" stroke={palette.green} strokeWidth="3" />
-            </g>
-          ))}
-        </g>
-
-        <text x="308" y="415" fontSize="12" fill={palette.line}>Check in</text>
-        <text x="786" y="415" fontSize="12" fill={palette.line}>Security and routing</text>
-        <text x="1222" y="415" fontSize="12" fill={palette.line}>Capital and partner check in</text>
-
-        <AreaButton x={110} y={420} width={450} height={145} label="" active={selectedId === "t1"} onClick={() => onSelect(airport.terminals[0])} />
-        <AreaButton x={560} y={420} width={485} height={145} label="" active={selectedId === "t2"} onClick={() => onSelect(airport.terminals[1])} />
-        <AreaButton x={1045} y={420} width={450} height={145} label="" active={selectedId === "t3"} onClick={() => onSelect(airport.terminals[2])} />
-        <AreaButton x={700} y={160} width={210} height={160} label="" active={selectedId === "tower"} onClick={() => onSelect(airport.tower)} />
-
-        {[
-          [120, "t1-c1", airport.terminals[0].concourses[0]],
-          [210, "t1-c2", airport.terminals[0].concourses[1]],
-          [300, "t1-c3", airport.terminals[0].concourses[2]],
-          [390, "t1-c4", airport.terminals[0].concourses[3]],
-          [480, "t1-c5", airport.terminals[0].concourses[4]],
-          [570, "t2-c1", airport.terminals[1].concourses[0]],
-          [660, "t2-c2", airport.terminals[1].concourses[1]],
-          [750, "t2-c3", airport.terminals[1].concourses[2]],
-          [840, "t2-c4", airport.terminals[1].concourses[3]],
-          [930, "t2-c5", airport.terminals[1].concourses[4]],
-          [1055, "t3-c1", airport.terminals[2].concourses[0]],
-          [1145, "t3-c2", airport.terminals[2].concourses[1]],
-          [1235, "t3-c3", airport.terminals[2].concourses[2]],
-          [1325, "t3-c4", airport.terminals[2].concourses[3]],
-          [1415, "t3-c5", airport.terminals[2].concourses[4]],
-        ].map(([x, id, item]) => (
-          <AreaButton key={id} x={x} y={570} width={70} height={110} active={selectedId === id} onClick={() => onSelect(item)} />
-        ))}
-
-        <text x="90" y="865" fill={palette.ink} fontSize="18" fontWeight="700">Legend</text>
-        {[
-          [90, 892, palette.building, "Terminal building"],
-          [90, 920, palette.building2, "Formation and organization zones"],
-          [90, 948, palette.sand, "Passenger circulation and public commons"],
-          [320, 892, palette.tarmac, "Taxiways and apron"],
-          [320, 920, palette.gate, "Gates and bridges"],
-          [320, 948, palette.green, "Seating and waiting areas"],
-        ].map(([x, y, c, t]) => (
-          <g key={t}>
-            <rect x={x} y={y - 12} width="18" height="18" rx="4" fill={c} stroke="rgba(0,0,0,0.15)" />
-            <text x={x + 28} y={y + 2} fontSize="13" fill={palette.line}>{t}</text>
-          </g>
-        ))}
-      </svg>
-    </div>
-  );
-}
-
-function DetailList({ items }) {
-  return (
-    <div className="grid gap-2">
-      {items.map((item) => (
-        <div key={item} className="flex items-start gap-2 text-sm text-slate-700">
-          <ChevronRight className="mt-0.5 h-4 w-4 text-sky-600" />
-          <span>{item}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function SidePanel({ selected, reset }) {
-  const Icon = selected?.icon || Info;
-  return (
-    <Card className="h-full rounded-[28px] border-slate-200 bg-white shadow-[0_18px_60px_rgba(27,40,54,0.1)]">
-      <CardContent className="p-0">
-        <div className="border-b border-slate-200 p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <Badge className="rounded-full bg-slate-100 px-3 py-1 text-slate-700 hover:bg-slate-100">{selected?.type || "Section"}</Badge>
-            <Button variant="ghost" size="icon" className="rounded-full text-slate-500 hover:bg-slate-100" onClick={reset}>
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-          <div className="flex items-start gap-3">
-            <div className="rounded-2xl bg-slate-100 p-3">
-              <Icon className="h-5 w-5 text-slate-700" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-semibold text-slate-900">{selected?.title}</h2>
-              {selected?.subtitle ? <p className="mt-1 text-sm text-slate-500">{selected.subtitle}</p> : null}
-              {selected?.short ? <p className="mt-1 text-sm text-slate-500">{selected.short}</p> : null}
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-6 p-6">
-          {selected?.description ? (
-            <div>
-              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Overview</div>
-              <p className="mt-3 text-sm leading-6 text-slate-700">{selected.description}</p>
-            </div>
-          ) : null}
-
-          {selected?.details ? (
-            <div>
-              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Core structure</div>
-              <div className="mt-3"><DetailList items={selected.details} /></div>
-            </div>
-          ) : null}
-
-          {selected?.passengers ? (
-            <div>
-              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Passengers</div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {selected.passengers.map((p) => (
-                  <Badge key={p} className="rounded-full bg-slate-100 px-3 py-1 text-slate-700 hover:bg-slate-100">{p}</Badge>
-                ))}
-              </div>
-            </div>
-          ) : null}
-
-          {selected?.marketplace ? (
-            <div>
-              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Marketplace</div>
-              <div className="mt-3"><DetailList items={selected.marketplace} /></div>
-            </div>
-          ) : null}
-
-          {selected?.functions ? (
-            <div>
-              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Tower functions</div>
-              <div className="mt-3"><DetailList items={selected.functions} /></div>
-            </div>
-          ) : null}
-
-          {selected?.gates ? (
-            <div>
-              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Gates in this concourse</div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {selected.gates.map((g) => (
-                  <Badge key={g} className="rounded-full bg-slate-100 px-3 py-1 text-slate-700 hover:bg-slate-100">{g}</Badge>
-                ))}
-              </div>
-            </div>
-          ) : null}
-
-          {selected?.concourses ? (
-            <div>
-              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Concourses</div>
-              <div className="mt-3 grid gap-3">
-                {selected.concourses.map((c) => (
-                  <div key={c.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <div className="font-medium text-slate-900">{c.title}</div>
-                    <div className="mt-1 text-sm text-slate-600">{c.description}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : null}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-export default function PurposeOSAirportExperience() {
-  const [selected, setSelected] = useState(airport.airport);
-  const [focus, setFocus] = useState("airport");
-  const [query, setQuery] = useState("");
-
-  const results = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return [];
-    return searchable.filter((item) =>
-      [item.title, item.subtitle, item.short, item.description, item.terminalTitle]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase()
-        .includes(q)
-    );
-  }, [query]);
-
-  const selectItem = (item) => {
-    setSelected(item);
-    setFocus(item.id || "airport");
-  };
-
-  const reset = () => {
-    setSelected(airport.airport);
-    setFocus("airport");
-    setQuery("");
-  };
-
-  return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#f7f9fb_0%,#e9eff5_100%)] text-slate-900">
-      <div className="mx-auto max-w-[1750px] px-6 py-8 lg:px-10 lg:py-10">
-        <div className="mb-8 grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
-          <div>
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs uppercase tracking-[0.22em] text-slate-600 shadow-sm">
-              <Sparkles className="h-4 w-4" />
-              Cinematic airport experience
-            </div>
-            <h1 className="max-w-5xl text-4xl font-semibold tracking-tight text-slate-900 lg:text-6xl">
-              PurposeOS as an actual airport, interactive, spatial, and immersive
-            </h1>
-            <p className="mt-4 max-w-4xl text-base leading-7 text-slate-600 lg:text-lg">
-              This version is designed to feel like a real airport diagram. Click terminals, concourses, and the control tower to zoom in. Explore gates, parked aircraft, circulation zones, and the way each part of the ecosystem connects.
-            </p>
-          </div>
-
-          <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-[0_18px_50px_rgba(27,40,54,0.08)]">
-            <div className="grid gap-4">
-              <div className="relative">
-                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <Input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search terminal, concourse, or tower"
-                  className="h-12 rounded-2xl border-slate-200 bg-slate-50 pl-11 text-slate-900 placeholder:text-slate-400"
-                />
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                <Button onClick={() => setFocus("airport")} className="rounded-2xl bg-slate-900 text-white hover:bg-slate-800">
-                  <RotateCcw className="mr-2 h-4 w-4" /> Whole airport
-                </Button>
-                <Button onClick={() => setFocus(selected?.id || "airport")} className="rounded-2xl bg-slate-100 text-slate-800 hover:bg-slate-200">
-                  <ZoomIn className="mr-2 h-4 w-4" /> Zoom to selected
-                </Button>
-                <Button onClick={reset} className="rounded-2xl bg-slate-100 text-slate-800 hover:bg-slate-200">
-                  <ZoomOut className="mr-2 h-4 w-4" /> Reset
-                </Button>
-              </div>
-
-              <AnimatePresence>
-                {results.length > 0 ? (
-                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} className="grid gap-2">
-                    {results.slice(0, 6).map((item) => (
-                      <button
-                        key={item.id}
-                        onClick={() => selectItem(item)}
-                        className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-left transition hover:bg-slate-100"
-                      >
-                        <div className="font-medium text-slate-900">{item.title}</div>
-                        <div className="text-sm text-slate-500">{item.type || "Section"}</div>
-                      </button>
-                    ))}
-                  </motion.div>
-                ) : null}
-              </AnimatePresence>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid gap-6 xl:grid-cols-[1.45fr_0.72fr]">
-          <TerminalMap focusId={focus} onSelect={selectItem} selectedId={selected?.id} />
-          <SidePanel selected={selected} reset={reset} />
-        </div>
-      </div>
-    </div>
-  );
-}
+    renderPanel(data.airport);
+  </script>
+</body>
+</html>
